@@ -12,21 +12,44 @@ public class HelloWorldImpl {
     @Resource
     private WebServiceContext svcCtx;
     @WebMethod()
-    public String sayHello(String name) {
-        MessageContext msgCtx = svcCtx.getMessageContext();
-        ServletContext ctx = (ServletContext)
-                msgCtx.get(MessageContext.SERVLET_CONTEXT);
+    public byte[] sendMessage() throws InterruptedException {
+        ServletContext ctx = retrieveSC();
+        long time = System.currentTimeMillis();
 
+        int delay = Integer.parseInt(ctx.getAttribute("delay").toString());
+        int messageSize = Integer.parseInt(ctx.getAttribute("messageSize").toString());
 
-        return ctx.getAttribute("conf") + " " + name + ".";
+        byte[] mess = generateMessage(messageSize);
+
+        long time2 = System.currentTimeMillis();
+
+        Thread.sleep(delay - (time2 - time));
+
+        return mess;
     }
 
+
+
     @WebMethod()
-    public String updateConf(String name) {
-        MessageContext msgCtx = svcCtx.getMessageContext();
-        ServletContext ctx = (ServletContext)
-                msgCtx.get(MessageContext.SERVLET_CONTEXT);
-        ctx.setAttribute("conf", name);
+    public String configure(int messageSize, int delay) {
+        ServletContext ctx = retrieveSC();
+        ctx.setAttribute("delay", delay);
+        ctx.setAttribute("messageSize", messageSize);
+
         return "OK";
+    }
+
+    private byte[] generateMessage(int messageSize) {
+        byte[] mess = new byte[messageSize];
+        for(int i=0;i < messageSize;i++) {
+            mess[i] =(byte) ('a' +(i%26));
+        }
+        return mess;
+    }
+
+    private ServletContext retrieveSC() {
+        MessageContext msgCtx = svcCtx.getMessageContext();
+        return (ServletContext)
+                msgCtx.get(MessageContext.SERVLET_CONTEXT);
     }
 }
