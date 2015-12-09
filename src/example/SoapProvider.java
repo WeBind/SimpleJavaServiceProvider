@@ -8,20 +8,28 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
 @WebService()
-public class HelloWorldImpl {
+public class SoapProvider {
     @Resource
     private WebServiceContext svcCtx;
+
+    /**
+     * Run the service, according to the configuration
+     */
     @WebMethod()
-    public byte[] sendMessage() throws InterruptedException {
+    public byte[] doStuff() throws InterruptedException {
         ServletContext ctx = retrieveSC();
-        long time = System.currentTimeMillis();
+        byte[] mess;
+        long time2,
+            time = System.currentTimeMillis();
 
-        int delay = Integer.parseInt(ctx.getAttribute("delay").toString());
-        int messageSize = Integer.parseInt(ctx.getAttribute("messageSize").toString());
+        int delay = Integer.parseInt(
+                ctx.getAttribute("delay") != null ? ctx.getAttribute("delay").toString() : "0"),
+            messageSize = Integer.parseInt(
+                ctx.getAttribute("messageSize") != null ? ctx.getAttribute("messageSize").toString() : "10");
 
-        byte[] mess = generateMessage(messageSize);
+        mess = generateMessage(messageSize);
 
-        long time2 = System.currentTimeMillis();
+        time2 = System.currentTimeMillis();
 
         Thread.sleep(delay - (time2 - time));
 
@@ -30,6 +38,11 @@ public class HelloWorldImpl {
 
 
 
+    /**
+     * Configures the WebService
+     * @param messageSize   size of the answer message
+     * @param delay         delay before the service responds
+     */
     @WebMethod()
     public String configure(int messageSize, int delay) {
         ServletContext ctx = retrieveSC();
