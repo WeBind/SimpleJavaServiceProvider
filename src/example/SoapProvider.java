@@ -16,7 +16,8 @@ public class SoapProvider {
      * Run the service, according to the configuration
      */
     @WebMethod()
-    public byte[] doStuff() throws InterruptedException {
+    public String doStuff() throws InterruptedException {
+        System.out.println("Doing stuff");
         ServletContext ctx = retrieveSC();
         byte[] mess;
         long time2,
@@ -33,7 +34,7 @@ public class SoapProvider {
 
         Thread.sleep(delay - (time2 - time));
 
-        return mess;
+        return ""+ctx.getAttribute("message");//mess;
     }
 
 
@@ -51,6 +52,9 @@ public class SoapProvider {
 
         return "OK";
     }
+
+
+
 
     private byte[] generateMessage(int messageSize) {
         byte[] mess = new byte[messageSize];
