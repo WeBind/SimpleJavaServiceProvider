@@ -16,17 +16,17 @@ public class SoapProvider {
      * Run the service, according to the configuration
      */
     @WebMethod()
-    public String doStuff() throws InterruptedException {
-        System.out.println("Doing stuff");
+    public byte[] doStuff() throws InterruptedException {
         ServletContext ctx = retrieveSC();
+        System.out.println("Doing stuff - delay:" + ctx.getAttribute(Config.CONFIG_DELAY));
         byte[] mess;
         long time2,
             time = System.currentTimeMillis();
 
         int delay = Integer.parseInt(
-                ctx.getAttribute("delay") != null ? ctx.getAttribute("delay").toString() : "0"),
+                ctx.getAttribute(Config.CONFIG_DELAY) != null ? ctx.getAttribute(Config.CONFIG_DELAY).toString() : "0"),
             messageSize = Integer.parseInt(
-                ctx.getAttribute("messageSize") != null ? ctx.getAttribute("messageSize").toString() : "10");
+                ctx.getAttribute(Config.CONFIG_MSG_SIZE) != null ? ctx.getAttribute(Config.CONFIG_MSG_SIZE).toString() : "10");
 
         mess = generateMessage(messageSize);
 
@@ -34,7 +34,7 @@ public class SoapProvider {
 
         Thread.sleep(delay - (time2 - time));
 
-        return ""+ctx.getAttribute("message");//mess;
+        return mess;
     }
 
 

@@ -5,4 +5,6 @@ package example;
  */
 public class Config {
     public static final String QUEUE_NAME="prod";
+    public static final String CONFIG_DELAY="delay";
+    public static final String CONFIG_MSG_SIZE="messagesize";
 }

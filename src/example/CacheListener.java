@@ -1,5 +1,6 @@
 package example;
 
+import com.google.gson.Gson;
 import com.rabbitmq.client.*;
 
 import javax.servlet.ServletContext;
@@ -33,7 +34,9 @@ public class CacheListener implements ServletContextListener {
 
     public void contextDestroyed(ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
-        context.removeAttribute("message");
+        context.removeAttribute(Config.CONFIG_DELAY);
+        context.removeAttribute(Config.CONFIG_MSG_SIZE);
+
     }
 
 
@@ -43,8 +46,11 @@ public class CacheListener implements ServletContextListener {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
                 String message = new String(body, "UTF-8");
-                System.out.println("received " + message);
-                context.setAttribute("message", message);
+                System.out.println("Received message " + message);
+                Gson g = new Gson();
+                ConfigMessage mess = g.fromJson(message, ConfigMessage.class);
+                context.setAttribute(Config.CONFIG_DELAY, mess.delay);
+                context.setAttribute(Config.CONFIG_MSG_SIZE, mess.messageSize);
             }
         };
         channel.basicConsume(Config.QUEUE_NAME, true, consumer);
