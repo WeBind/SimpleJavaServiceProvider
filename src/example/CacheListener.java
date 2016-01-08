@@ -20,8 +20,8 @@ public class CacheListener implements ServletContextListener {
         ServletContext context = sce.getServletContext();
         //Retrieve the SP number from a file that was generated when deploying the app.
         //And set it as the current NUMBER.
-        int number = retrieveNumberFromContext(context);
-        context.setAttribute(Config.NUMBER, number);
+        String[] ids = retrieveIdsFromContext(context);
+        context.setAttribute(Config.NUMBER, ids[0]);
 
         //Now, connect to RabbitMQ using QUEUE_NAME as a queue
         try {
@@ -29,8 +29,11 @@ public class CacheListener implements ServletContextListener {
             factory.setHost("localhost");
             Connection connection = factory.newConnection();
             final Channel channel = connection.createChannel();
+            channel.exchangeDeclare(ids[1],"direct");
+            String queueName = channel.queueDeclare().getQueue();
+            channel.queueBind(queueName, ids[1], ids[0]);
+            channel.queueBind(queueName, ids[1], ids[2]);
 
-            channel.queueDeclare(Config.QUEUE_NAME, false, false, false, null);
             System.out.println(" [*] Waiting for messages");
             //Create the consumer associated to the queue
             createConsumer(channel, context);
@@ -40,7 +43,7 @@ public class CacheListener implements ServletContextListener {
             e.printStackTrace();
         }
         System.out.println("Context initialized");
-        System.out.println("My number is: " + number);
+        System.out.println("My number is: " + ids[0]);
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
@@ -51,17 +54,20 @@ public class CacheListener implements ServletContextListener {
     }
 
 
-    public int retrieveNumberFromContext(ServletContext context) {
-        int number = -1;
+    public String[] retrieveIdsFromContext(ServletContext context) {
+        String[] ids = new String[3];
+//        id, exchangeId, broadcastId;
         try {
             InputStream inputStream = context.getResourceAsStream("/number.txt");
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            number = Integer.parseInt(reader.readLine());
+            ids[0] = reader.readLine();
+            ids[1]= reader.readLine();
+            ids[2]= reader.readLine();
         } catch (Exception e) {
             System.out.println("No number found");
             e.printStackTrace();
         }
-        return number;
+        return ids;
 
 
     }
