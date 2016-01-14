@@ -25,9 +25,10 @@ public class CacheListener implements ServletContextListener {
         String[] ids = retrieveIdsFromContext(context);
         String id = ids[0],
                 exchange = ids[1],
-                bcast = ids[2];
+                bcast = ids[2],
+                callback = ids[3];
         context.setAttribute(Config.NUMBER, ids[0]);
-
+        context.setAttribute(Config.CALLBACK, ids[3]);
         //Now, connect to RabbitMQ using QUEUE_NAME as a queue
         try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -68,6 +69,7 @@ public class CacheListener implements ServletContextListener {
             ids[0] = reader.readLine();
             ids[1]= reader.readLine();
             ids[2]= reader.readLine();
+            ids[3] = reader.readLine();
         } catch (Exception e) {
             System.out.println("No number found");
             e.printStackTrace();
