@@ -7,20 +7,25 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebListener
 public class CacheListener implements ServletContextListener {
+    Logger lg = java.util.logging.Logger.getLogger("OMG");
     //When the context is initialized = when the ServiceProvider is deployed.
     public void contextInitialized(ServletContextEvent sce) {
+        lg.log(Level.INFO, "started");
+
         ServletContext context = sce.getServletContext();
         //Retrieve the SP number from a file that was generated when deploying the app.
         //And set it as the current NUMBER.
         String[] ids = retrieveIdsFromContext(context);
+        String id = ids[0],
+                exchange = ids[1],
+                bcast = ids[2];
         context.setAttribute(Config.NUMBER, ids[0]);
 
         //Now, connect to RabbitMQ using QUEUE_NAME as a queue
@@ -29,21 +34,21 @@ public class CacheListener implements ServletContextListener {
             factory.setHost("localhost");
             Connection connection = factory.newConnection();
             final Channel channel = connection.createChannel();
-            channel.exchangeDeclare(ids[1],"direct");
+            channel.exchangeDeclare(exchange,"direct");
             String queueName = channel.queueDeclare().getQueue();
-            channel.queueBind(queueName, ids[1], ids[0]);
-            channel.queueBind(queueName, ids[1], ids[2]);
+            channel.queueBind(queueName, exchange, id);
+            channel.queueBind(queueName, exchange, id);
 
-            System.out.println(" [*] Waiting for messages");
+            lg.log(Level.INFO, id + " [*] Waiting for messages");
             //Create the consumer associated to the queue
-            createConsumer(channel, context);
+            createConsumer(channel, queueName, context);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
-        System.out.println("Context initialized");
-        System.out.println("My number is: " + ids[0]);
+        lg.log(Level.INFO,id + "Context initialized");
+        lg.log(Level.INFO, id + "My number is: " + id + " - " + exchange + " - " + bcast);
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
@@ -72,20 +77,31 @@ public class CacheListener implements ServletContextListener {
 
     }
 
-    public void createConsumer(Channel channel, final ServletContext context) throws IOException {
+    public void createConsumer(Channel channel, String queueName, final ServletContext context) throws IOException {
+        java.util.logging.Logger.getLogger("OMG").log(Level.INFO, "Consumer created");
+
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
-            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
-                    throws IOException {
-                String message = new String(body, "UTF-8");
-                System.out.println("Received message " + message);
+            public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
+                String message = null;
+                TypedMessage t = new TypedMessage("omg");
+                try {
+                    message = new String(body, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                java.util.logging.Logger.getLogger("OMG").log(Level.INFO, "Received message " + message);
                 Gson g = new Gson();
-                ConfigMessage mess = g.fromJson(message, ConfigMessage.class);
-                context.setAttribute(Config.CONFIG_DELAY, mess.delay);
-                context.setAttribute(Config.CONFIG_MSG_SIZE, mess.messageSize);
+                TypedMessage mess = g.fromJson(message, TypedMessage.class);
+                if(mess.type.equals("config")) {
+                    ConfigMessage conf = g.fromJson(message, ConfigMessage.class);
+                    context.setAttribute(Config.CONFIG_DELAY, ""+conf.responseTime );
+                    context.setAttribute(Config.CONFIG_MSG_SIZE, ""+conf.responseLength );
+                } else {
+                    //Go
+                }
             }
         };
-        channel.basicConsume(Config.QUEUE_NAME, true, consumer);
+        channel.basicConsume(queueName, true, consumer);
     }
-
 }

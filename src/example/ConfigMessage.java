@@ -3,11 +3,12 @@ package example;
 /**
  * Created by magicmicky on 10/12/15.
  */
-public class ConfigMessage {
-    public String delay, messageSize;
+public class ConfigMessage extends TypedMessage{
+    public int responseLength, responseTime;
 
-    public ConfigMessage(String delay, String messageSize) {
-        this.delay = delay;
-        this.messageSize = messageSize;
+    public ConfigMessage(String type, int delay, int messageSize) {
+        super(type);
+        this.responseTime= delay;
+        this.responseLength = messageSize;
     }
 }
