@@ -47,8 +47,8 @@ public class SoapProvider {
     @WebMethod()
     public String configure(int messageSize, int delay) {
         ServletContext ctx = retrieveSC();
-        ctx.setAttribute("delay", delay);
-        ctx.setAttribute("messageSize", messageSize);
+        ctx.setAttribute(Config.CONFIG_DELAY, delay);
+        ctx.setAttribute(Config.CONFIG_MSG_SIZE, messageSize);
 
         return "OK";
     }
@@ -61,7 +61,6 @@ public class SoapProvider {
         for(int i=0;i < messageSize;i++) {
             mess[i] =(byte) ('a' +(i%26));
         }
-        mess[mess.length-1]='\0';
         return mess;
     }
 
