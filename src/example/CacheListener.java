@@ -61,7 +61,7 @@ public class CacheListener implements ServletContextListener {
 
 
     public String[] retrieveIdsFromContext(ServletContext context) {
-        String[] ids = new String[3];
+        String[] ids = new String[4];
 //        id, exchangeId, broadcastId;
         try {
             InputStream inputStream = context.getResourceAsStream("/number.txt");
