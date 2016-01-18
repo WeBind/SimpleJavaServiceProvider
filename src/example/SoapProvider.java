@@ -61,6 +61,7 @@ public class SoapProvider {
         for(int i=0;i < messageSize;i++) {
             mess[i] =(byte) ('a' +(i%26));
         }
+        mess[mess.length-1]='\0';
         return mess;
     }
 
