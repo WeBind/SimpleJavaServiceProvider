@@ -59,6 +59,7 @@ public class CacheListenerTest extends TestCase {
         //CacheListener instance = new CacheListener();
        // String[] expResult = null;
         //String[] result = instance.retrieveIdsFromContext(context);
+        System.out.println("Test not implemented");
         assertEquals(1, 1);
     }
 
