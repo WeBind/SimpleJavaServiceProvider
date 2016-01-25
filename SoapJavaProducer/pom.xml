@@ -60,6 +60,18 @@
           <target>1.5</target>
         </configuration>
       </plugin>
+
+       <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>cobertura-maven-plugin</artifactId>
+            <version>2.5.1</version>
+            <configuration>
+                <formats>
+                    <format>xml</format>
+                    <format>html</format>
+                </formats>
+            </configuration>
+        </plugin>
     </plugins>
     <finalName>SoapJavaProducer</finalName>
   </build>
