@@ -6,11 +6,14 @@ import javax.jws.WebService;
 import javax.servlet.ServletContext;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebService(serviceName = "provider-omg")
 public class SoapProvider {
     @Resource
     private WebServiceContext svcCtx;
+    Logger lg = java.util.logging.Logger.getLogger("SoapProducer");
 
     /**
      * Run the service, according to the configuration
@@ -18,7 +21,9 @@ public class SoapProvider {
     @WebMethod()
     public byte[] doStuff() throws InterruptedException {
         ServletContext ctx = retrieveSC();
-        System.out.println("Doing stuff - delay:" + ctx.getAttribute(Config.CONFIG_DELAY));
+        Integer number = (Integer) ctx.getAttribute(Config.NUMBER);
+
+        lg.log(Level.INFO, "[" + number + "] Doing stuff - delay:" + ctx.getAttribute(Config.CONFIG_DELAY));
         byte[] mess;
         long time2,
             time = System.currentTimeMillis();

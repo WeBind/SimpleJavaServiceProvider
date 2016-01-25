@@ -14,10 +14,10 @@ import java.util.logging.Logger;
 
 @WebListener
 public class CacheListener implements ServletContextListener {
-    Logger lg = java.util.logging.Logger.getLogger("OMG");
+
+    Logger lg = java.util.logging.Logger.getLogger("SoapProducer");
     //When the context is initialized = when the ServiceProvider is deployed.
     public void contextInitialized(ServletContextEvent sce) {
-        lg.log(Level.INFO, "started");
 
         ServletContext context = sce.getServletContext();
         //Retrieve the SP number from a file that was generated when deploying the app.
@@ -29,6 +29,7 @@ public class CacheListener implements ServletContextListener {
                 callback = ids[3];
         context.setAttribute(Config.NUMBER, ids[0]);
         context.setAttribute(Config.CALLBACK, ids[3]);
+        lg.log(Level.INFO, "Producer [" + id + "] started");
         //Now, connect to RabbitMQ using QUEUE_NAME as a queue
         try {
             ConnectionFactory factory = new ConnectionFactory();
@@ -80,7 +81,6 @@ public class CacheListener implements ServletContextListener {
     }
 
     public void createConsumer(Channel channel, String queueName, final ServletContext context) throws IOException {
-        java.util.logging.Logger.getLogger("OMG").log(Level.INFO, "Consumer created");
 
         Consumer consumer = new DefaultConsumer(channel) {
             @Override
@@ -92,7 +92,7 @@ public class CacheListener implements ServletContextListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                java.util.logging.Logger.getLogger("OMG").log(Level.INFO, "Received message " + message);
+                lg.log(Level.INFO, ((Integer)context.getAttribute(Config.NUMBER)) + "Received message " + message);
                 Gson g = new Gson();
                 TypedMessage mess = g.fromJson(message, TypedMessage.class);
                 if(mess.type.equals("config")) {
