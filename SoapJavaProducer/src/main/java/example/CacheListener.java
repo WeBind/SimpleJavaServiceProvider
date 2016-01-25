@@ -99,6 +99,7 @@ public class CacheListener implements ServletContextListener {
                     ConfigMessage conf = g.fromJson(message, ConfigMessage.class);
                     context.setAttribute(Config.CONFIG_DELAY, ""+conf.responseTime );
                     context.setAttribute(Config.CONFIG_MSG_SIZE, ""+conf.responseLength );
+                    lg.log(Level.INFO,context.getAttribute(Config.NUMBER) + "Configs : " + context.getAttribute(Config.CONFIG_DELAY) + " - " + context.getAttribute(Config.CONFIG_MSG_SIZE));
                 } else {
                     //Go
                 }

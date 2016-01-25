@@ -36,8 +36,9 @@ public class SoapProvider {
         mess = generateMessage(messageSize);
 
         time2 = System.currentTimeMillis();
-
-        Thread.sleep(delay - (time2 - time));
+        long sleepingtime = delay - (time2 - time);
+        lg.log(Level.INFO, "[" + number + "] Sleeping " + sleepingtime);
+        Thread.sleep(Math.max(0, sleepingtime));
 
         return mess;
     }
