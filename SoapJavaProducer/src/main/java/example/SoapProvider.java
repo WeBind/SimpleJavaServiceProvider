@@ -21,7 +21,7 @@ public class SoapProvider {
     @WebMethod()
     public byte[] doStuff() throws InterruptedException {
         ServletContext ctx = retrieveSC();
-        Integer number = (Integer) ctx.getAttribute(Config.NUMBER);
+        String number = (String) ctx.getAttribute(Config.NUMBER);
 
         lg.log(Level.INFO, "[" + number + "] Doing stuff - delay:" + ctx.getAttribute(Config.CONFIG_DELAY));
         byte[] mess;

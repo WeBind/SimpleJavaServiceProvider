@@ -92,7 +92,7 @@ public class CacheListener implements ServletContextListener {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                lg.log(Level.INFO, ((Integer)context.getAttribute(Config.NUMBER)) + "Received message " + message);
+                lg.log(Level.INFO, context.getAttribute(Config.NUMBER) + "Received message " + message);
                 Gson g = new Gson();
                 TypedMessage mess = g.fromJson(message, TypedMessage.class);
                 if(mess.type.equals("config")) {
