@@ -39,7 +39,7 @@ public class CacheListener implements ServletContextListener {
             channel.exchangeDeclare(exchange,"direct");
             String queueName = channel.queueDeclare().getQueue();
             channel.queueBind(queueName, exchange, id);
-            channel.queueBind(queueName, exchange, id);
+            channel.queueBind(queueName, exchange, bcast);
 
             lg.log(Level.INFO, id + " [*] Waiting for messages");
             //Create the consumer associated to the queue
